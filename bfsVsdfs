@@ -1,0 +1,62 @@
+BFS (Breadth-First Search) → explores level by level
+DFS (Depth-First Search) → explores as deep as possible first
+
+🚦 When to Use BFS
+Use BFS when the problem is about shortest path or minimum steps.
+  ✅ Signals for BFS
+    “minimum steps”, “shortest distance”, “least moves”
+    Level-wise traversal needed
+    Unweighted graph
+    Finding nearest/closest target
+  💡 Examples
+    Shortest path in a grid (like islands, maze)
+    Word ladder problem
+    Minimum moves in a game
+    Level order traversal of a tree
+  
+🌳 When to Use DFS
+Use DFS when you need to explore all possibilities or go deep
+  ✅ Signals for DFS  
+    “find all paths”
+    “check if exists”
+    Backtracking problems
+    Tree/graph traversal without shortest path requirement
+💡 Examples
+    Detect cycle in graph
+    Path existence
+    Generate subsets / permutations
+    Island counting (can use both, but DFS is simpler)
+    Topological sort (DFS version)
+
+START
+  |
+  |-- Is it asking for SHORTEST / MIN steps / nearest?
+  |        → YES → ✅ BFS
+  |
+  |-- Is it level-by-level traversal?
+  |        → YES → ✅ BFS
+  |
+  |-- Do you need to explore ALL paths / combinations?
+  |        → YES → ✅ DFS
+  |
+  |-- Is it a TREE problem?
+  |        |-- Level order → BFS
+  |        |-- Depth / path / recursion → DFS
+  |
+  |-- Is it GRAPH cycle detection or topological sort?
+  |        → DFS (most common)
+  |
+  |-- Grid problem?
+           |-- Shortest path → BFS
+           |-- Count islands / flood fill → DFS
+
+🧩 Real Interview Patterns
+  1. Grid Problems (Islands)
+    Count islands → DFS (simple)
+    Shortest path in grid → BFS
+  2. Tree Problems
+    Level order → BFS
+    Depth / path sum → DFS
+  3. Graph Problems
+    Shortest path → BFS
+    Cycle detection → DFS
