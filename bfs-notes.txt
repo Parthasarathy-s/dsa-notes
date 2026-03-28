@@ -1,0 +1,9 @@
+queue.add(start)
+visited[start] = true
+
+while(queue not empty):
+    node = queue.remove()
+    for each neighbor:
+        if not visited:
+            mark visited
+            add to queue
