@@ -28,14 +28,17 @@ Constraints:
     0 <= prices[i] <= 10^4
 """
 
-from json.encoder import INFINITY
 from typing import List
 
 
 def max_profit(prices: List[int]) -> int:
-    min = INFINITY
-    
-    
+    minimum = float("inf")
+    max_profit = 0
+    for price in prices:
+        minimum = price if price < minimum else minimum
+        max_profit = max(max_profit, price - minimum)
+
+    return max_profit
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ Strategy: breeze through strong patterns first to build momentum, then slow down
 - [ ] Container With Most Water
 
 ### 3. Sliding Window
-- [ ] Best Time to Buy and Sell Stock
+- [✅] Best Time to Buy and Sell Stock
 - [ ] Longest Substring Without Repeating Characters
 - [ ] Longest Repeating Character Replacement
 - [ ] Minimum Window Substring
