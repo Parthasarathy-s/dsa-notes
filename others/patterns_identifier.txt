@@ -1,0 +1,344 @@
+DSA PATTERN IDENTIFICATION GUIDE - ALL QUESTION TYPES
+========================================================
+How to tell which technique to use, before you write code.
+
+
+1. TWO POINTERS
+----------------
+SIGNALS:
+- Sorted array + "find pair/triplet that sums to X"
+- "Remove duplicates in place"
+- Palindrome check
+- Comparing from both ends (container with most water)
+- Merging two sorted arrays/lists
+
+TEMPLATE:
+int left = 0, right = arr.length - 1;
+while (left < right) {
+    // compare/process arr[left], arr[right]
+    if (condition) left++;
+    else right--;
+}
+
+
+2. SLIDING WINDOW
+------------------
+SIGNALS:
+- "Longest/shortest substring/subarray with condition X"
+- "Maximum sum subarray of size K"
+- Contains phrase "contiguous" + a constraint (no repeating chars, at most K distinct, sum <= target)
+- "Minimum window substring"
+
+FIXED WINDOW TEMPLATE:
+int windowSum = 0;
+for (int i = 0; i < k; i++) windowSum += arr[i];
+int maxSum = windowSum;
+for (int i = k; i < arr.length; i++) {
+    windowSum += arr[i] - arr[i - k];
+    maxSum = Math.max(maxSum, windowSum);
+}
+
+VARIABLE WINDOW TEMPLATE:
+int left = 0;
+for (int right = 0; right < arr.length; right++) {
+    // expand window using arr[right]
+    while (windowInvalid) {
+        // shrink window using arr[left]
+        left++;
+    }
+    // update result using current window [left, right]
+}
+
+
+3. BINARY SEARCH
+------------------
+SIGNALS:
+- Array is SORTED (or "rotated sorted array")
+- "Find target in O(log n)"
+- "Find first/last occurrence", "find peak", "find minimum in rotated array"
+- Answer space is monotonic ("minimize the maximum," "find smallest X such that condition holds")
+  -> this is "binary search on the answer", very common in medium/hard problems
+
+TEMPLATE (classic):
+int lo = 0, hi = arr.length - 1;
+while (lo <= hi) {
+    int mid = lo + (hi - lo) / 2;
+    if (arr[mid] == target) return mid;
+    else if (arr[mid] < target) lo = mid + 1;
+    else hi = mid - 1;
+}
+
+TEMPLATE (binary search on answer):
+int lo = minPossible, hi = maxPossible;
+while (lo < hi) {
+    int mid = lo + (hi - lo) / 2;
+    if (feasible(mid)) hi = mid;
+    else lo = mid + 1;
+}
+return lo;
+
+
+4. FAST & SLOW POINTERS (LINKED LIST)
+----------------------------------------
+SIGNALS:
+- "Detect cycle in linked list"
+- "Find middle of linked list"
+- "Find start of cycle"
+- "Happy number" (cycle detection on non-list data too)
+
+TEMPLATE:
+ListNode slow = head, fast = head;
+while (fast != null && fast.next != null) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow == fast) { /* cycle found */ }
+}
+
+
+5. MERGE INTERVALS
+--------------------
+SIGNALS:
+- "Overlapping intervals," "meeting rooms," "insert interval"
+- Input is list of [start, end] pairs
+
+TEMPLATE:
+Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+List<int[]> merged = new ArrayList<>();
+for (int[] interval : intervals) {
+    if (merged.isEmpty() || merged.get(merged.size()-1)[1] < interval[0]) {
+        merged.add(interval);
+    } else {
+        merged.get(merged.size()-1)[1] = Math.max(merged.get(merged.size()-1)[1], interval[1]);
+    }
+}
+
+
+6. MONOTONIC STACK
+---------------------
+SIGNALS:
+- "Next greater/smaller element"
+- "Daily temperatures," "largest rectangle in histogram"
+- "Trapping rain water" (can also be two-pointer)
+- Need to find nearest element to left/right that is greater/smaller
+
+TEMPLATE:
+Deque<Integer> stack = new ArrayDeque<>(); // stores indices
+for (int i = 0; i < arr.length; i++) {
+    while (!stack.isEmpty() && arr[stack.peek()] < arr[i]) {
+        int idx = stack.pop();
+        // arr[i] is next greater element for arr[idx]
+    }
+    stack.push(i);
+}
+
+
+7. HEAP / PRIORITY QUEUE
+---------------------------
+SIGNALS:
+- "Kth largest/smallest," "top K frequent"
+- "Merge K sorted lists"
+- "Median of data stream" (two heaps)
+- Need repeated access to min/max as elements are added/removed
+- Scheduling / task ordering by priority
+
+TEMPLATE (Kth largest):
+PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+for (int num : arr) {
+    minHeap.offer(num);
+    if (minHeap.size() > k) minHeap.poll();
+}
+return minHeap.peek();
+
+
+8. BACKTRACKING
+------------------
+SIGNALS:
+- "Generate all combinations/permutations/subsets"
+- "N-Queens," "Sudoku solver," "word search"
+- "Find all valid arrangements satisfying constraints"
+- Phrase "return all possible" is the biggest tell
+
+TEMPLATE:
+void backtrack(List<Integer> path, ...) {
+    if (isComplete(path)) {
+        result.add(new ArrayList<>(path));
+        return;
+    }
+    for (Choice choice : choices) {
+        if (!isValid(choice)) continue;
+        path.add(choice);
+        backtrack(path, ...);
+        path.remove(path.size() - 1); // undo
+    }
+}
+
+
+9. DYNAMIC PROGRAMMING
+--------------------------
+SIGNALS:
+- "Maximum/minimum ways to reach X"
+- "Longest common subsequence/substring," "edit distance"
+- "Can you partition/reach a target sum" (subset sum, knapsack)
+- Optimal substructure + overlapping subproblems
+- Phrase "number of distinct ways" almost always DP
+- If brute force is exponential and problem has "choose or not choose" structure -> DP
+
+HOW TO IDENTIFY 1D vs 2D DP:
+- Single sequence, single constraint (climbing stairs, house robber) -> 1D DP
+- Two sequences (LCS, edit distance) or grid (unique paths) -> 2D DP
+- Knapsack-style with a "capacity" constraint -> 2D DP (dp[i][capacity])
+
+TEMPLATE (1D, bottom-up):
+int[] dp = new int[n + 1];
+dp[0] = baseCase;
+for (int i = 1; i <= n; i++) {
+    dp[i] = /* recurrence using dp[i-1], dp[i-2], etc. */;
+}
+return dp[n];
+
+TEMPLATE (2D, e.g. LCS):
+int[][] dp = new int[m + 1][n + 1];
+for (int i = 1; i <= m; i++) {
+    for (int j = 1; j <= n; j++) {
+        if (s1.charAt(i-1) == s2.charAt(j-1)) dp[i][j] = dp[i-1][j-1] + 1;
+        else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+    }
+}
+
+
+10. GREEDY
+-------------
+SIGNALS:
+- "Minimum number of X to achieve Y" where local optimal choice leads to global optimal
+- "Jump game," "gas station," "assign cookies," "interval scheduling"
+- Sorting + single pass often solves it
+- If DP feels like overkill and a sorted greedy pass works, it's greedy
+- Proof usually relies on "exchange argument" or "matroid-like" structure
+
+TEMPLATE (generic shape):
+Arrays.sort(items, comparator);
+for (item : items) {
+    if (locallyOptimalChoiceValid) {
+        take(item);
+    }
+}
+
+
+11. UNION-FIND (DISJOINT SET)
+---------------------------------
+SIGNALS:
+- "Number of connected components," "redundant connection"
+- "Accounts merge," "friend circles"
+- Need to repeatedly check "are these two nodes connected" and merge groups
+- Undirected graph cycle detection
+
+TEMPLATE:
+int[] parent, rank;
+int find(int x) {
+    if (parent[x] != x) parent[x] = find(parent[x]); // path compression
+    return parent[x];
+}
+void union(int x, int y) {
+    int rx = find(x), ry = find(y);
+    if (rx == ry) return;
+    if (rank[rx] < rank[ry]) { int t = rx; rx = ry; ry = t; }
+    parent[ry] = rx;
+    if (rank[rx] == rank[ry]) rank[rx]++;
+}
+
+
+12. TRIE (PREFIX TREE)
+--------------------------
+SIGNALS:
+- "Implement autocomplete," "word search II," "longest common prefix"
+- Repeated prefix lookups across many strings
+- "Add word / search word with wildcard"
+
+TEMPLATE (node structure):
+class TrieNode {
+    TrieNode[] children = new TrieNode[26];
+    boolean isEnd;
+}
+
+
+13. GRAPH ALGORITHMS (BEYOND PLAIN BFS/DFS)
+-----------------------------------------------
+- Shortest path, WEIGHTED, no negative edges -> Dijkstra (priority queue + relaxation)
+- Shortest path, negative edges allowed -> Bellman-Ford
+- Shortest path, ALL PAIRS -> Floyd-Warshall
+- Minimum spanning tree -> Kruskal's (Union-Find) or Prim's (heap)
+- "Course schedule," "build order" -> Topological sort (DFS post-order or Kahn's/BFS)
+- "Alien dictionary" -> Topological sort on inferred graph
+
+
+14. BIT MANIPULATION
+------------------------
+SIGNALS:
+- "Single number," "missing number," "counting bits"
+- XOR appears useful when "every element appears twice except one"
+- "Subsets" can also be solved via bitmask (2^n iteration)
+- Power of two check: (n & (n-1)) == 0
+
+COMMON TRICKS:
+- a ^ a = 0, a ^ 0 = a  -> find unique element among duplicates
+- n & (n-1) removes lowest set bit
+- n & (-n) isolates lowest set bit
+
+
+15. MATRIX / GRID PROBLEMS
+------------------------------
+SIGNALS:
+- "Rotate image," "spiral matrix," "set matrix zeroes"
+- Pure traversal/transformation -> simulate directly, no fancy algorithm needed
+- "Number of islands," "shortest path in grid" -> DFS/BFS (see graph rules)
+- "Search a 2D matrix" (sorted rows/cols) -> binary search variant
+
+
+16. PREFIX SUM
+------------------
+SIGNALS:
+- "Range sum query," "subarray sum equals K"
+- Need repeated sum queries over a range -> precompute prefix sums
+- "Subarray sum equals K" -> prefix sum + HashMap of seen sums
+
+TEMPLATE:
+int[] prefix = new int[arr.length + 1];
+for (int i = 0; i < arr.length; i++) prefix[i+1] = prefix[i] + arr[i];
+// sum(i, j) = prefix[j+1] - prefix[i]
+
+
+DECISION FLOWCHART (ask in this order)
+------------------------------------------
+1. Is input sorted, or can answer space be framed as monotonic?      -> Binary Search
+2. Contiguous subarray/substring with a constraint?                  -> Sliding Window
+3. Pair/triplet sum in sorted array, or compare from both ends?      -> Two Pointers
+4. Linked list, cycle or middle-finding?                             -> Fast & Slow Pointers
+5. Intervals with start/end pairs?                                   -> Merge Intervals / Sort
+6. "Next greater/smaller element"?                                   -> Monotonic Stack
+7. Need running min/max/Kth element as data streams in?              -> Heap
+8. "Return ALL possible ..." (combinations/permutations/paths)?      -> Backtracking
+9. "Number of ways," "min/max cost to reach," optimal substructure?  -> Dynamic Programming
+10. Sorted greedy pass beats brute force, local choice = global?     -> Greedy
+11. Repeated "are X and Y connected" / merging groups?               -> Union-Find
+12. Repeated prefix lookups across strings?                          -> Trie
+13. Graph shortest path with weights?                                -> Dijkstra/Bellman-Ford
+14. Graph ordering with dependencies?                                -> Topological Sort
+15. "Appears once/twice," XOR tricks, subset via bitmask?            -> Bit Manipulation
+16. Grid traversal/transformation, no shortest-path condition?       -> Direct Simulation
+17. Repeated range-sum queries?                                      -> Prefix Sum
+18. None of the above, graph + unweighted shortest path/levels?      -> BFS
+19. None of the above, all paths/components/cycles/tree?             -> DFS
+
+
+COMMON GOTCHAS ACROSS PATTERNS
+-----------------------------------
+- Sliding window: forgetting to shrink window correctly loses O(n) and becomes O(n^2)
+- Binary search on answer: get the feasible() direction wrong (asking "can we do better with
+  smaller/larger mid") more often breaks solutions than off-by-one bounds
+- DP: not identifying the right state (what varies) leads to wrong dimensions; always define
+  dp[i] or dp[i][j] in words FIRST before coding
+- Backtracking: forgetting to "undo" the choice after recursion causes wrong subsequent paths
+- Greedy: assuming greedy works without verifying exchange-argument correctness; when unsure,
+  compare against a small DP solution mentally
+- Union-Find: forgetting path compression + union by rank turns O(a(n)) into O(n) in worst case
+- Monotonic stack: pushing values instead of indices when you need index-based distance
