@@ -1,0 +1,108 @@
+BFS vs DFS - LEETCODE IDENTIFICATION GUIDE
+============================================
+
+CORE RULE
+---------
+BFS = queue = level-by-level = shortest path in UNWEIGHTED graph
+DFS = stack/recursion = go deep first = all paths / cycle detection / topological order
+
+
+BFS SIGNALS
+-----------
+- "Shortest path" in unweighted graph/grid -> BFS
+  (if weighted, it's Dijkstra, NOT plain BFS)
+- "Minimum number of steps/moves/operations" -> BFS (each step = one edge)
+- "Level" or "distance from source" -> BFS naturally tracks levels
+- "Nearest" anything (nearest exit, nearest 0, nearest gate) -> BFS
+- Word ladder / state transformation ("transform A to B in min steps") -> BFS on implicit graph
+- Multi-source problems ("rotting oranges", "walls and gates") -> BFS from multiple sources at once
+- Bipartite check -> BFS or DFS with 2-coloring
+- "Minimum knight moves", "minimum jumps" -> BFS
+
+
+DFS SIGNALS
+-----------
+- "All paths" / "find every path from A to B" -> DFS (BFS can't enumerate paths efficiently)
+- "Connected components" (count islands, count provinces) -> DFS or BFS; DFS = less code
+- "Cycle detection" -> DFS with 3-color marking (white/gray/black) for directed graphs;
+  Union-Find also works for undirected graphs
+- "Topological sort" / "course schedule" / "build order" -> DFS with post-order reversal,
+  OR Kahn's algorithm (BFS variant using in-degree) - know BOTH
+- Backtracking flavor ("generate all combinations/permutations/subsets satisfying X") -> DFS + backtrack
+- Tree problems (almost always) -> DFS (recursive), since trees have no cycles
+- "Max depth", "diameter", "path sum" in trees -> DFS
+- "Number of islands", "flood fill", "surrounded regions" -> DFS (or BFS, DFS usually simpler)
+- Sudoku solver, N-Queens, word search in grid -> DFS + backtracking
+- "Clone graph" -> DFS or BFS with a visited map
+
+
+DECISION CHECKLIST (ask in this order)
+---------------------------------------
+1. Does it say "shortest," "minimum steps," or "levels"?        -> BFS
+2. Does it say "all paths," "components," "cycle," or "topological"? -> DFS
+3. Is it a tree (no cycles)?                                     -> DFS
+4. Is it a grid/matrix traversal (islands, flood fill)?          -> Either; DFS = less code
+5. Does it involve generating combinations/permutations?         -> DFS + backtracking
+6. Multiple starting points reaching outward simultaneously?     -> Multi-source BFS
+
+
+COMMON GOTCHAS
+--------------
+- BFS finds shortest path ONLY in unweighted graphs. Weighted -> Dijkstra/Bellman-Ford.
+- DFS recursion can stack-overflow on very deep/large graphs -> convert to iterative with
+  explicit stack if input size is large.
+- Topological sort has TWO valid approaches: DFS post-order (reverse it) or BFS/Kahn's
+  (repeatedly remove zero in-degree nodes). Interviewers often ask for both.
+- Cycle detection differs by graph type:
+    Directed graph   -> DFS 3-color (white/gray/black)
+    Undirected graph -> DFS with parent tracking, or Union-Find
+- "Visited" set placement matters: for BFS, mark visited when ADDING to queue
+  (not when polling), or you'll process duplicates.
+
+
+JAVA TEMPLATES
+---------------
+
+BFS:
+Queue<Integer> queue = new LinkedList<>();
+Set<Integer> visited = new HashSet<>();
+queue.add(start);
+visited.add(start);
+
+while (!queue.isEmpty()) {
+    int node = queue.poll();
+    // process node
+    for (int neighbor : graph.get(node)) {
+        if (!visited.contains(neighbor)) {
+            visited.add(neighbor);
+            queue.add(neighbor);
+        }
+    }
+}
+
+DFS (recursive):
+void dfs(int node, Set<Integer> visited, Map<Integer, List<Integer>> graph) {
+    if (visited.contains(node)) return;
+    visited.add(node);
+    // process node
+    for (int neighbor : graph.get(node)) {
+        dfs(neighbor, visited, graph);
+    }
+}
+
+DFS (iterative, avoids stack overflow on deep graphs):
+Deque<Integer> stack = new ArrayDeque<>();
+Set<Integer> visited = new HashSet<>();
+stack.push(start);
+
+while (!stack.isEmpty()) {
+    int node = stack.pop();
+    if (visited.contains(node)) continue;
+    visited.add(node);
+    // process node
+    for (int neighbor : graph.get(node)) {
+        if (!visited.contains(neighbor)) {
+            stack.push(neighbor);
+        }
+    }
+}
